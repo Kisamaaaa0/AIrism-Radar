@@ -1,0 +1,26 @@
+# OS junk files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Env / Secrets
+.env
+*.key
+*.secret
+
+# Uploads & temporary files
+uploads/
+static/uploads/
+
+# Logs
+*.log
+
+# IDE/editor stuff
+.vscode/
+.idea/
+*.swp

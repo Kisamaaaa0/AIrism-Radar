@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center">
+  <h2>Deepfake Detector</h2>
+  <p>Paste a link to check if it's a deepfake</p>
+  
+
+  <div class="input-group mb-3">
+    <input id="urlInput" type="text" class="form-control" placeholder="Paste video/image URL...">
+    <button id="detectBtn" class="btn btn-primary">Detect</button>
+  </div>
+
+  <div id="result" class="alert mt-3" style="display:none;"></div>
+</div>
+<div class="alert alert-info" role="alert">
+  <h5>How to use:</h5>
+  <ul>
+    <li>Upload an image/video or paste a <strong>Facebook / YouTube link</strong>.</li>
+    <li>Click <strong>Analyze</strong> to check if it’s Real or Deepfake.</li>
+    <li>View results (Green = Real, Red = Fake).</li>
+  </ul>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
