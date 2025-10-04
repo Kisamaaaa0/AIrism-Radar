@@ -11,4 +11,4 @@ beautifulsoup4
 python-docx
 nltk
 tqdm
-mediapipe
+mediapipe==0.10.14
