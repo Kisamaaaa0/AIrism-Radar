@@ -41,45 +41,31 @@ def analyze_url():
         return jsonify({"error": "No URL provided"}), 400
 
     try:
+        # 1. Download media (returns a local path)
         media_path = download_media(url)
         if not media_path:
             return jsonify({"error": "Download failed"}), 500
 
+        # 2. Detect media type
         media_type = get_media_type(media_path)
 
-        # Ensure preview folder exists
-        static_dir = Path("static/uploads")
-        static_dir.mkdir(parents=True, exist_ok=True)
+        # 3. Copy file to static/uploads for preview
+        static_preview = Path("static/uploads") / Path(media_path).name
+        Path("static/uploads").mkdir(parents=True, exist_ok=True)
+        shutil.copy(media_path, static_preview)
 
-        # Handle preview differently for video vs image
-        if media_type == "image":
-            # Copy image file to static/uploads
-            preview_path = static_dir / Path(media_path).name
-            shutil.copy(media_path, preview_path)
+        # 4. Build preview URL (not the file itself)
+        preview_url = url_for("static", filename=f"uploads/{Path(media_path).name}", _external=True)
 
-        elif media_type == "video":
-            # Extract first frame of video
-            cap = cv2.VideoCapture(str(media_path))
-            ret, frame = cap.read()
-            cap.release()
-
-            if ret:
-                preview_path = static_dir / (Path(media_path).stem + "_preview.jpg")
-                cv2.imwrite(str(preview_path), frame)
-            else:
-                return jsonify({"error": "Failed to extract video frame"}), 500
-
-        else:
-            return jsonify({"error": "Unsupported media type"}), 400
-
-        preview_url = url_for("static", filename=f"uploads/{preview_path.name}")
-
-        # --- Run prediction ---
+        # 5. Run AI model
         if media_type == "image":
             label, realism, deepfake = predict_image(media_path)
         elif media_type == "video":
             label, realism, deepfake = predict_video(media_path)
+        else:
+            return jsonify({"error": "Unsupported media type"}), 400
 
+        # 6. Return only safe JSON (no binary data)
         return jsonify({
             "domain": urlparse(url).netloc,
             "type": media_type,
@@ -91,6 +77,7 @@ def analyze_url():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # --- Plagiarism Checker (Text + File Upload) ---
